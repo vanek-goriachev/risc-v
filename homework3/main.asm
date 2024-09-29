@@ -14,7 +14,7 @@ main:
     ecall
     li a7, 5
     ecall
-    mv t0, a0
+    mv t0, a0                      
 
     # Read divisor
     la a0, prompt2
@@ -22,7 +22,7 @@ main:
     ecall
     li a7, 5
     ecall
-    mv t1, a0
+    mv t1, a0                       
 
     # Check for division by zero
     bnez t1, proceed
@@ -33,42 +33,42 @@ main:
 
 proceed:
     # Initialize quotient and remainder
-    li t2, 0
-    mv t3, t0
+    li t2, 0                        
+    mv t3, t0                       
 
     # Determine the sign of the quotient and remainder
-    li t4, 1
+    li t4, 1                        
     bgez t0, dividend_positive
-    neg t0, t0
+    neg t0, t0                      
     neg t4, t4
 
 dividend_positive:
     bgez t1, divisor_positive
-    neg t1, t1
+    neg t1, t1                      
     neg t4, t4
 
 divisor_positive:
     # Division loop
 div_loop:
-    blt t0, t1, calculation_done
-    sub t0, t0, t1
-    addi t2, t2, 1
+    blt t0, t1, calculation_done    # If dividend < divisor, division is done
+    sub t0, t0, t1                  # Subtract divisor from dividend
+    addi t2, t2, 1                  # Increment quotient by 1
     j div_loop
 
 calculation_done:
-    # Adjust signs of quotient and remainder
+    # Adjust signs of quotient
     bgtz t4, positive_quotient
     neg t2, t2
 
 positive_quotient:
-    mv t3, t0
+    mv t3, t0                       
 
-    # Restore the sign of the original dividend to the remainder
-    bgez t3, positive_rem
-    neg t3, t3
+    # Correct for sign of dividend
+    bgez t4, positive_rem
+    neg t3, t3                     
 
 positive_rem:
-    mv a1, t3
+    mv a1, t3                       
 
     # Print Results
     la a0, result1
