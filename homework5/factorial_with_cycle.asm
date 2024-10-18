@@ -26,15 +26,15 @@ exit:
     ecall
 
 fact:
-    li t0, 1                 # t0 = 1 (начальное значение факториала)
-    li t1, 1                 # t1 = 1 (счетчик)
+    li t0, 1                 # t0 = 1 = fact
+    li t1, 1                 # t1 = 1 = i
 
 fact_loop:
-    bgt t1, a0, fact_done    # Если t1 == n, завершить
-    mul t0, t0, t1           # t0 *= t1
-    addi t1, t1, 1           # t1 += 1
-    j fact_loop              # Повторить цикл
+    bgt t1, a0, fact_done    # if (i == n) break
+    mul t0, t0, t1           # fact *= i
+    addi t1, t1, 1           # i += 1
+    j fact_loop             
 
 fact_done:
-    mv a0, t0                # Возвращаем t0 в a0
+    mv a0, t0               
     ret
