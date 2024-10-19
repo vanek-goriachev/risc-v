@@ -20,10 +20,25 @@ sep: .asciz " "
     ecall
 .end_macro
 
-.macro calculate_ai_address(%i, %array_start_address, %ai_address)
-    li t6, 4
-    mul t6, t6, %i # t6 = i * 4
-    add %ai_address, %array_start_address, %ai_address # a[i]_address = array_pointer + (i * 4)
+.macro print_str (%x)
+    .data
+        str: .asciz %x
+   .text
+       push (a0)
+       li a7, 4
+       la a0, str
+       ecall
+       pop (a0)
+.end_macro
+
+.macro print_char(%x)
+    li a7, 11
+    li a0, %x
+    ecall
+.end_macro
+
+.macro newline
+    print_char('\n')
 .end_macro
 
 .macro exit()
@@ -31,4 +46,14 @@ sep: .asciz " "
     ecall
 .end_macro
 
+.macro push(%x)
+    addi sp, sp, -4
+    sw %x, (sp)
+.end_macro
+
+# Выталкивание значения с вершины стека в регистр
+.macro pop(%x)
+    lw %x, (sp)
+    addi sp, sp, 4
+.end_macro
 
