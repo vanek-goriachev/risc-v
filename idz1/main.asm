@@ -6,7 +6,7 @@ A: .space 64
 B: .space 64
 
 .text
-main:
+main: 
     addi sp, sp, -4
     # 0(sp) is for n
 
@@ -27,7 +27,7 @@ main:
     la a1, A # a1 = A array pointer
     la a2, B # a2 = B array pointer
     jal ra, process_array
-
+    
     lw a0, 0(sp) # a0 = n
     la a1, B     # a1 = array pointer
     jal ra, print_array
@@ -132,6 +132,57 @@ process_array:
         
         j process_array_loop
     process_array_loop_end:
+    
+    pop(s2)
+    pop(s1)
+    pop(s0)
+    
+    jalr zero, 0(ra)
+    
+
+are_arrays_equal:
+    push(s0)
+    mv s0, a0
+    push(s1)
+    mv s1, a1
+    push(s2)
+    mv s2, a2
+    
+    # s0 = n
+    # s1 = array1_pointer
+    # s2 = array2_pointer
+    
+    li t1, 0 # t1 = i
+    
+    are_arrays_equal_loop:
+        bge t1, s0, print_arrays_equal
+        
+        # calculate a[i] address
+        li t2, 4
+        mul t2, t2, t1 # t2 = t1 * 4
+        add t2, t2, s1 # t2 = A_array_pointer + (t1 * 4)
+        
+        lw t2, 0(t2) # t2 = a[i]
+        
+        # calculate b[i]
+        li t3, 4
+        mul t3, t3, t1 # t2 = t1 * 4
+        add t3, t3, s2 # t2 = array_pointer + (t1 * 4)
+        
+        lw t3, 0(t3) # t3 = b[i]
+        
+        bne t2, t3, print_arrays_not_equal
+        
+        addi t1, t1, 1 # i += 1
+        
+        j are_arrays_equal_loop
+    print_arrays_equal:
+    	print_str("Arrays are equal\n")
+    	j are_arrays_equal_exit
+    print_arrays_not_equal:
+    	print_str("Arrays are not equal\n")
+    
+    are_arrays_equal_exit:
     
     pop(s2)
     pop(s1)
