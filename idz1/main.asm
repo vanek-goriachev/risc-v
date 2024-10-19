@@ -10,15 +10,27 @@ main:
     addi sp, sp, -4
     # 0(sp) is for n
 
+    print_str("Input N - array length. N must be even. Input 0 to run tests:\n")
+
     read_int(a0)
     sw a0, 0(sp) # 0(sp) = n
-
+    
+    beqz a0, tests_run # if n == 0 -> tests
+                       
     # check if n is even 
     # (my idz variant is 24 - if n is odd the task is... idk undefined i think)
-    li t2, 2
-    rem t1, a0, t2 # t1 = a0 % 2 = n % 2
-    bnez t1, n_must_be_even
+    li t1, 2
+    rem t1, a0, t1
+    beqz t1, manual_run         # if n % 2 == 0 -> manual run             
+    j   n_must_be_even          # else -> error
+    
 
+
+tests_run:
+    print_str("aboba abeba")
+    j main_end
+    
+manual_run:
     lw a0, 0(sp) # a0 = n
     la a1, A     # a1 = A array pointer
     jal ra, read_array
@@ -32,8 +44,11 @@ main:
     la a1, B     # a1 = array pointer
     jal ra, print_array
     j main_end
+    
 n_must_be_even:
     print_str("N must be a even number")
+    j main_end
+    
 main_end:
     addi sp, sp, 4
     exit()
