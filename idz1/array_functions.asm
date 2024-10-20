@@ -1,3 +1,12 @@
+.include "macros.asm"
+
+.global print_array
+.global read_array_from_multiple_strings
+.global read_array_from_space_separated_string
+.global parse_array_from_string
+.global are_arrays_equal
+
+
 print_array: # void print_array(n, &array)
     push(s0)
     push(s1)
@@ -14,7 +23,7 @@ print_array: # void print_array(n, &array)
        
         lw a0, 0(t1) # a0 = a[i]
         print_int(a0)
-        print_sep()
+        print_str(" ")
         
         addi t0, t0, 1 # i += 1
         
@@ -53,27 +62,30 @@ read_array_from_multiple_strings: # void read_array_from_multiple_strings(n, &ar
     jalr zero, 0(ra)
 
 
-read_array_from_space_separated_string: # void read_array_from_space_separated_string(n, &array)
+read_array_from_space_separated_string: # void read_array_from_space_separated_string(n, &array, &buffer)
     push(ra)
     push(s0)
     push(s1)
+    push(s2)
 
     mv s0, a0
     mv s1, a1
+    mv s2, a2
     
     print_str("Input space separated array numbers: ")
 
     # Read string to buffer
-    la a0, buffer
+    mv a0, s2
     li a1, 100
     li a7, 8
     ecall
     
     mv a0, s0
     mv a1, s1
-    la a2, buffer
+    mv a2, s2
     jal ra, parse_array_from_string # parse_array_from_string(n, &array, &buffer) -> None
     
+    pop(s2)
     pop(s1)
     pop(s0)
     pop(ra)

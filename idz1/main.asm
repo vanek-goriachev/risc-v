@@ -1,4 +1,5 @@
 .include "macros.asm"
+
 .data
 
 .align 2
@@ -66,6 +67,7 @@ main: # void main()
         la a1, source_array 
 
         # Эта строчка используется для чтения массива как "1 2 3 4"
+        la a2, buffer
         jal ra, read_array_from_space_separated_string  # read_array_from_space_separated_string(n, &source_array) -> None
 
         # Эта строчка используется для чтения массива как "1\n2\n3\n4\n"
@@ -133,4 +135,3 @@ process_array: # void process_array(n, &source_array, &target_array)
     
     jalr zero, 0(ra)
     
-.include "array_functions.asm"

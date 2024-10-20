@@ -1,13 +1,3 @@
-.data
-.align 2
-sep: .asciz " "
-
-.macro print_sep()
-    li a7, 4
-    la a0, sep
-    ecall
-.end_macro
-
 .macro read_int(%x)
     li a7, 5
     ecall 
