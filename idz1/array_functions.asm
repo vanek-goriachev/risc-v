@@ -74,7 +74,7 @@ read_array_from_space_separated_string: # void read_array_from_space_separated_s
     
     print_str("Input space separated array numbers: ")
 
-    # Read string to buffer
+    # Read string to buffer 
     mv a0, s2
     li a1, 100
     li a7, 8
