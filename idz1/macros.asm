@@ -20,6 +20,13 @@ sep: .asciz " "
     ecall
 .end_macro
 
+
+.macro calculate_ai_address(%array_pointer, %i, %a_i_address)
+    li %a_i_address, 4
+    mul %a_i_address, %a_i_address, %i
+    add %a_i_address, %a_i_address, %array_pointer
+.end_macro
+
 .macro print_str (%x)
     .data
         str: .asciz %x
