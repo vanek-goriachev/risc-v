@@ -1,9 +1,10 @@
 .include "macros.asm"
 .data
 
-.align 2 
+.align 2
 A: .space 64
 B: .space 64
+buffer: .space 1024
 
 .text
 main: 
@@ -23,8 +24,6 @@ main:
     rem t1, a0, t1
     beqz t1, manual_run         # if n % 2 == 0 -> manual run             
     j   n_must_be_even          # else -> error
-    
-
 
 tests_run:
     print_str("aboba abeba")
@@ -33,7 +32,7 @@ tests_run:
 manual_run:
     lw a0, 0(sp) # a0 = n
     la a1, A     # a1 = A array pointer
-    jal ra, read_array
+    jal ra, read_array_from_space_separated_string
 
     lw a0, 0(sp) # a0 = n
     la a1, A # a1 = A array pointer
@@ -79,14 +78,14 @@ print_array:
     print_array_loop_end:
     jalr zero, 0(ra)
     
-read_array:
+read_array_from_multiple_strings:
     mv t4, a0 # a0 = n
     mv t3, a1 # a1 = array_pointer
 
     li t1, 0 # t1 = i
     
-    read_array_loop:
-        bge t1, t4, read_array_loop_end
+    read_array_from_multiple_strings_loop:
+        bge t1, t4, read_array_from_multiple_strings_loop_end
         
         # calculate a[i] address
         li t2, 4
@@ -97,9 +96,32 @@ read_array:
         sw a0, 0(t2) # a[i] = a0 = input
         addi t1, t1, 1 # i += 1
         
-        j read_array_loop
-    read_array_loop_end:
+        j read_array_from_multiple_strings_loop
+    read_array_from_multiple_strings_loop_end:
     jalr zero, 0(ra)
+
+
+read_array_from_space_separated_string:
+    push(ra)
+    mv t0, a0 # a0 = n
+    mv t1, a1 # a1 = array_pointer
+    
+    print_str("Input space separated array numbers: ")
+    # Read string to buffer
+    la a0, buffer
+    li a1, 100
+    li a7, 8
+    ecall
+    
+    mv a0, t0
+    mv a1, t1
+    la a2, buffer
+    jal ra, parse_array_from_string
+    
+    pop(ra)
+    
+    jalr zero, 0(ra)
+    
 
 process_array:
     push(s0)
@@ -155,6 +177,7 @@ process_array:
     jalr zero, 0(ra)
     
 
+
 are_arrays_equal:
     push(s0)
     mv s0, a0
@@ -205,4 +228,61 @@ are_arrays_equal:
     
     jalr zero, 0(ra)
     
+parse_array_from_string:
+    push(s0)
+    push(s1)
+    push(s2)
+    mv s0, a0 # s0 = n
+    mv s1, a1 # s1 = array_pointer
+    mv s2, a2 # s2 = buffer pointer
+    
+    li t1, 0 # t1 = i (counter of readed numbers)
+    
+    parse_loop:
+        beq t1, s0, parse_end  # i == n -> return
 
+        lb t2, 0(s2)           # t2 = symbol
+        beqz t2, parse_end     # t2 == "\0" -> return
+
+        li t3, ' '             # 
+        beq t2, t3, skip_space # t2 == ' ' -> skip
+
+        li t4, 0               # t4 = current number storage
+
+        parse_number:
+            li t3, '0'
+            sub t2, t2, t3         # t2  = int(t2)
+            li t3, 9
+            blt t2, zero, store_number  #
+            bgt t2, t3, store_number    # !(0 <= t2 <= 9) -> store number in array
+
+            li t3, 10
+            mul t4, t4, t3       
+            add t4, t4, t2         # t4 = 10*t4 + t2
+
+            addi s2, s2, 1        
+            lb t2, 0(s2)           # t2 = next symbol
+            j parse_number
+
+        store_number:
+            sw t4, 0(s1)           
+            addi s1, s1, 4         
+            addi t1, t1, 1         
+ 
+        skip_space:
+            addi s2, s2, 1         # Переход к следующему символу
+            
+        j parse_loop
+    parse_end:
+        beq t1, s0, parse_array_from_string_return
+        print_str("Not enough numbers parsed from string\nExpected:")
+        print_int(s0)
+        print_str("\nGot:")
+        print_int(t1)
+        print_str("\n")
+    
+    parse_array_from_string_return:
+        pop(s2)
+        pop(s1)
+        pop(s0)
+        jalr zero, 0(ra)
