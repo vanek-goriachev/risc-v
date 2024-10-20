@@ -4,7 +4,36 @@
 .align 2
 A: .space 64
 B: .space 64
+C: .space 64
 buffer: .space 1024
+
+
+.macro test(%n, %source, %expected)
+    .data 
+        source_buffer: .asciz %source
+        expected_buffer: .asciz %expected
+    .text
+        li a0, %n
+        la a1, A
+        la a2, source_buffer
+        jal ra, parse_array_from_string
+        
+        
+        li a0, %n
+        la a1, C
+        la a2, expected_buffer
+        jal ra, parse_array_from_string
+        
+        li a0, %n
+        la a1, A # a1 = A array pointer
+        la a2, B # a2 = B array pointer
+        jal ra, process_array
+        
+        li a0, %n
+        la a1, B
+        la a2, C
+        jal ra, are_arrays_equal
+.end_macro
 
 .text
 main: 
@@ -26,7 +55,9 @@ main:
     j   n_must_be_even          # else -> error
 
 tests_run:
-    print_str("aboba abeba")
+    test(4, "1 2 3 4", "2 1 4 3")
+    test(6, "12 54 74 11 25 16", "54 12 11 74 16 25")
+    test(4, "-1 2 -3 4", "2 -1 4 -3")
     j main_end
     
 manual_run:
@@ -246,8 +277,16 @@ parse_array_from_string:
 
         li t3, ' '             # 
         beq t2, t3, skip_space # t2 == ' ' -> skip
-
+        
         li t4, 0               # t4 = current number storage
+
+        li t3, '-'             # 
+        li t5, 1
+        bne t2, t3, parse_number # t2 != '-' -> positive number
+        li t5, -1
+        
+        addi s2, s2, 1        
+        lb t2, 0(s2)           # t2 = next symbol
 
         parse_number:
             li t3, '0'
@@ -265,6 +304,7 @@ parse_array_from_string:
             j parse_number
 
         store_number:
+            mul t4, t4, t5
             sw t4, 0(s1)           
             addi s1, s1, 4         
             addi t1, t1, 1         
