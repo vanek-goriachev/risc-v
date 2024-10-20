@@ -10,8 +10,8 @@ sep: .asciz " "
 
 .macro read_int(%x)
     li a7, 5
-    mv %x, a0
-    ecall # a0 = input
+    ecall 
+    mv %x, a0 # %x = input
 .end_macro
 
 .macro print_int(%x)
