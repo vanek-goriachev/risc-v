@@ -40,7 +40,7 @@ main: # void main()
 
         # Эти две строчки используются для чтения массива как "1 2 3 4"
         la a2, buffer
-        jal ra, read_array_from_space_separated_string  # read_array_from_space_separated_string(n, &source_array) -> None
+        jal ra, read_array_from_space_separated_string  # read_array_from_space_separated_string(n, &source_array, &buffer) -> None
 
         # Эта строчка используется для чтения массива как "1\n2\n3\n4\n"
         # jal ra, read_array_from_multiple_strings # read_array_from_multiple_strings(n, &source_array) -> None
